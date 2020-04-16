@@ -175,10 +175,20 @@ subprojects {
         }
 
         project.plugins.withId("org.jetbrains.intellij") {
-            systemProperty("log.dir", "${org.jetbrains.intellij.Utils.systemDir(project.intellij.sandboxDirectory, true)}/logs")
+            systemProperty("log.dir", "${project.intellij.sandboxDirectory}-test/logs")
         }
 
         mustRunAfter tasks.test
+    }
+
+    project.plugins.withId("org.jetbrains.intellij") {
+        downloadRobotServerPlugin.version = remoteRobotVersion
+
+        tasks.withType(org.jetbrains.intellij.tasks.RunIdeForUiTestTask).all {
+            systemProperty "robot-server.port", remoteRobotPort
+        }
+
+        jacoco.applyTo(runIdeForUiTests)
     }
 
     tasks.withType(KotlinCompile).all {
